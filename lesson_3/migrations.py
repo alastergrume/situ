@@ -6,7 +6,7 @@ class Init_DB:
     def __init__(self):
         self.conn = create_connection()
 
-    def create_db(self):
+    def init_migrations(self):
 
             cursor = self.conn.cursor()
 
