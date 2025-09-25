@@ -1,0 +1,4 @@
+.venv
+*/__pycach__
+.idea
+my_database.db
