@@ -21,7 +21,7 @@ class Students():
     return (self.age, self.name)
 
 # Устанавливаем соединение с базой данных
-connection = sqlite3.connect('../widget_app/my_database.db')
+connection = sqlite3.connect('widget_app/my_database.db')
 cursor = connection.cursor()
 
 # Выбираем всех пользователей
