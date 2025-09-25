@@ -1,4 +1,4 @@
 .venv
 */__pycach__
 .idea
-my_database.db
+widget_app/my_database.db
