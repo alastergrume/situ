@@ -1,4 +1,3 @@
-import os
 import sys
 from PyQt5 import QtWidgets
 import lesson_3.main_window_form as mw_fom
@@ -34,33 +33,50 @@ class MainWindow(QtWidgets.QMainWindow, mw_fom.Ui_MainWindow):
         )
         self.second_window.show()
 
-    def remove_values(self):
-        current_row = self.listWidget.currentRow()
-        remove_student = Students.all_students.pop(current_row)
+    def remove_values(self, event):
+
+        reply = QtWidgets.QMessageBox.question(
+            self, "Удаление",
+            "Будет удалено навсегда!",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No
+        )
+        if reply == QtWidgets.QMessageBox.Yes:
+            char_list = [i.text() for i in self.listWidget.selectedItems()]
+            name, email, age = char_list[0].split("\t")
+            for student in Students.all_students:
+                if student.name == name and student.email == email and int(student.age) == int(age):
+                    student.is_update = "delete"
+        # else:
+        #     pass
         self.create_list()
 
     def create_list(self):
         self.listWidget.clear()
         for student in Students.all_students:
-            self.listWidget.addItem(
-                student.name + "\t" + student.email + "\t" + str(student.age)
-            )
+            if student.is_update != "delete":
+                self.listWidget.addItem(
+                    student.name + "\t" + student.email + "\t" + str(student.age)
+                )
 
     def closeEvent(self, event):
-        print("Окно закрывается")
-        # TODO Нужно добавить проверку, если есть изменения, то сохранить и выйти
+
         reply = QtWidgets.QMessageBox.question(
             self, "Выход",
-            "Форма содержит изменения. Сохранить и выйти?",
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            QtWidgets.QMessageBox.No
+            "Форма содержит изменения. "
+            "\nСохранить и выйти? "
+            "\n(Cancel - Выход без сохранения изменений)?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel
         )
         if reply == QtWidgets.QMessageBox.No:
             event.ignore()
-        else:
+        elif reply == QtWidgets.QMessageBox.Cancel:
+            event.accept()
+        elif reply == QtWidgets.QMessageBox.Yes:
             Students.apply_changes()
             event.accept()
-
+        else:
+            raise Exception("Something wrong")
 
 class SecondWindow(QtWidgets.QMainWindow, sv_form.Ui_MainWindow):
     def __init__(self):
@@ -74,23 +90,19 @@ class SecondWindow(QtWidgets.QMainWindow, sv_form.Ui_MainWindow):
             name = self.lineEdit_name.text()
             email = self.lineEdit_email.text()
             age = self.lineEdit_age.text()
-            Students(len(Students.all_students) + 1, name, email, str(age), is_create=True)
-
-
+            Students(len(Students.all_students) + 1, name, email, str(age), is_update="create")
         else:
             current_row = main_window.listWidget.currentRow()
             Students.all_students[current_row].name = self.lineEdit_name.text()
             Students.all_students[current_row].email = self.lineEdit_email.text()
             Students.all_students[current_row].age = self.lineEdit_age.text()
-
-
+            Students.all_students[current_row].is_update = "update"
         main_window.create_list()
         self.close()
 
 
 def main():
     global main_window
-
     Students.get_all_students()
     app = QtWidgets.QApplication(sys.argv)
     second_window = SecondWindow()

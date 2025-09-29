@@ -13,7 +13,10 @@ class DbManager:
     def __init__(self):
         self._conn = self._get_connection()
         self._migrate()
-        if os.environ["APP_ENV"] == "TEST" and not self.select_all():
+        self.__is_students = self.select_all()
+        self.__is_testing = os.environ.get("APP_ENF", False) == "TEST"
+        self.__is_app_env = os.environ.get("APP_ENV", False)
+        if not self.__is_students and (self.__is_app_env or self.__is_testing):
             self._init_db_data()
 
     def _get_connection(self) -> sqlite3.Connection:
@@ -45,19 +48,19 @@ class DbManager:
         response = data.fetchall()
         return response
 
-    def remove_rows(self, row_id: int) -> None:
-        query = f"DELETE FROM Students WHERE id={row_id};"
+    def remove_rows(self, row_ids: List[int]) -> None:
+        query = "DELETE FROM Students WHERE id IN ({})".format(", ".join("?" * len(row_ids)))
         try:
             cursor = self._conn.cursor()
-            if row_id:
-                cursor.execute(query)
+            if row_ids:
+                cursor.execute(query, row_ids)
                 cursor.close()
                 self._conn.commit()
         except Exception as ex:
             logger.error(f"Error remove rows from Database: {ex}")
             self._conn.rollback()
 
-    def update_rows(self, rows: List[Tuple[str, int]]) -> None:
+    def update_rows(self, rows: List[Tuple]) -> None:
         query = """UPDATE Students 
                  SET name = ?, email = ?, age = ?
                  WHERE id = ?;"""

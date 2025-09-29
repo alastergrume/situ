@@ -1,44 +1,60 @@
-import dataclasses
-from typing import Tuple
+from dataclasses import dataclass
 from lesson_3.db_manager import DbManager
 
 
-@dataclasses.dataclass
+
+@dataclass
 class Students:
     all_students = []
 
-    def __init__(self, id: int, name: str, email: str, age: str) -> None:
+    def __init__(
+            self,
+            id: int,
+            name: str,
+            email: str,
+            age: str,
+            is_update: str = None
+    ) -> None:
+
         self.id = id
         self.name = name
         self.email = email
         self.age = age
-        self.is_create = None
-        self.is_update = None
-        self.is_remove = None
+        self.is_update = is_update
+        self.remove_list = []
         Students.all_students.append(self)
 
     @classmethod
-    def get_all_students(cls) -> None:
+    def get_all_students(cls) -> list:
         db_manager = DbManager()
         result = db_manager.select_all()
         for row in result:
             Students(*row)
-
-    def convert_to_tuple(self) -> Tuple:
-        return self.name, self.email, self.age, self.id
+        return Students.all_students
 
     @staticmethod
-    def apply_changes():
-        print(Students.all_students)
-        print(Students.remove_students)
-        print(Students.update_students)
-        print(Students.create_students)
-        print("Обновление базы данных выполнено")
+    def formating_lists():
+        remove_list = []
+        update_list = []
+        insert_list = []
+        for student in Students.all_students:
+            if student.is_update == "create":
+                insert_list.append((student.name, student.email, student.age))
+            elif student.is_update == "update":
+                update_list.append((student.name, student.email, student.age, student.id))
+            elif student.is_update == "delete":
+                remove_list.append(student.id)
+        return remove_list, update_list, insert_list
 
-    def __repr__(self):
-        return "Students_" + str(self.id)
+    @staticmethod
+    def apply_changes() -> None:
+        db_manager = DbManager()
+        remove_list, update_list, insert_list = Students.formating_lists()
+        db_manager.update_rows(update_list)
+        db_manager.insert_data(insert_list)
+        db_manager.remove_rows(remove_list)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             "\nИмя: "
             + self.name
