@@ -19,7 +19,6 @@ class DbManager:
     def get_connection(self) -> sqlite3.Connection:
         return create_connection()
 
-
     def insert_data(self, rows: List) -> None:
 
         query = """
@@ -39,14 +38,12 @@ class DbManager:
             logger.error(f"An error occurred: {ex}")
             self.conn.rollback()
 
-
     def select_all(self) -> List[Tuple[str, int]]:
         query = "SELECT id, name, email, age FROM Students;"
         cursor = self.conn.cursor()
         data = cursor.execute(query)
         response = data.fetchall()
         return response
-
 
     def remove_rows(self, row_id: int) -> None:
         query = f"DELETE FROM Students WHERE id={row_id};"
@@ -61,10 +58,9 @@ class DbManager:
             self.conn.rollback()
 
     def update_rows(self, rows: List[Tuple[str, int]]) -> None:
-        query = ("""UPDATE Students 
+        query = """UPDATE Students 
                  SET name = ?, email = ?, age = ?
                  WHERE id = ?;"""
-                 )
         try:
             cursor = self.conn.cursor()
             cursor.executemany(query, rows)
@@ -74,18 +70,19 @@ class DbManager:
             logger.error(f"Error update rows: {ex}")
             self.conn.rollback()
 
-
     def migrate(self) -> None:
         try:
             cursor = self.conn.cursor()
-            cursor.execute('''
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS Students (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL,
                 age INTEGER
                 )
-                ''')
+                """
+            )
 
             cursor.close()
             logger.debug("Migrations applied")
@@ -95,8 +92,8 @@ class DbManager:
 
     def init_db_data(self):
         students = [
-            ('Мария', 'newuser@example.com', 28),
-            ('Иван', 'new@example.com', 30),
-            ('Анна', 'qwert@example.com', 25),
+            ("Мария", "newuser@example.com", 28),
+            ("Иван", "new@example.com", 30),
+            ("Анна", "qwert@example.com", 25),
         ]
         self.insert_data(students)

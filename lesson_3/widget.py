@@ -6,33 +6,33 @@ import lesson_3.form2 as form2
 from lesson_3.model import Students
 
 
-class ExampleApp(QtWidgets.QMainWindow, form1.Ui_MainWindow):
-    def __init__(self, window2):
+class MainWindow(QtWidgets.QMainWindow, form1.Ui_MainWindow):
+    def __init__(self, second_window):
         super().__init__()
         self.setupUi(self)
         self.create_list()
-        self.window2 = window2
+        self.second_window = second_window
         self.btnCreate.clicked.connect(self.create_values)
         self.btnUpd.clicked.connect(self.update_values)
         self.btnDel.clicked.connect(self.remove_values)
 
     def create_values(self):
-        self.window2.is_new = True
-        self.window2.lineEdit_name.clear()
-        self.window2.lineEdit_email.clear()
-        self.window2.lineEdit_age.clear()
-        self.window2.show()
+        self.second_window.is_new = True
+        self.second_window.lineEdit_name.clear()
+        self.second_window.lineEdit_email.clear()
+        self.second_window.lineEdit_age.clear()
+        self.second_window.show()
 
     def update_values(self):
-        self.window2.is_new = False
+        self.second_window.is_new = False
         current_row = self.listWidget.currentRow()
-        self.window2.retranslateUi(
+        self.second_window.retranslateUi(
             self,
             Students.all_students[current_row].name,
             Students.all_students[current_row].email,
             str(Students.all_students[current_row].age),
         )
-        self.window2.show()
+        self.second_window.show()
 
     def remove_values(self):
         current_row = self.listWidget.currentRow()
@@ -46,8 +46,13 @@ class ExampleApp(QtWidgets.QMainWindow, form1.Ui_MainWindow):
                 student.name + "\t" + student.email + "\t" + str(student.age)
             )
 
+    def closeEvent(self, event):
+        print("Окно закрывается")
+        Students.apply_changes()
+        event.accept()
 
-class ExampleApp2(QtWidgets.QMainWindow, form2.Ui_MainWindow):
+
+class SecondWindow(QtWidgets.QMainWindow, form2.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -59,27 +64,23 @@ class ExampleApp2(QtWidgets.QMainWindow, form2.Ui_MainWindow):
             name = self.lineEdit_name.text()
             email = self.lineEdit_email.text()
             age = self.lineEdit_age.text()
-            Students(
-                len(Students.all_students) + 1, name, email, str(age)
-            )
+            Students(len(Students.all_students) + 1, name, email, str(age))
         else:
-            current_row = window.listWidget.currentRow()
+            current_row = main_window.listWidget.currentRow()
             Students.all_students[current_row].name = self.lineEdit_name.text()
-            Students.all_students[current_row].email = (
-                self.lineEdit_email.text()
-            )
+            Students.all_students[current_row].email = self.lineEdit_email.text()
             Students.all_students[current_row].age = self.lineEdit_age.text()
 
-        window.create_list()
+        main_window.create_list()
         self.close()
 
 
 def main():
-    global window
+    global main_window
 
     Students.get_all_students()
     app = QtWidgets.QApplication(sys.argv)
-    window2 = ExampleApp2()
-    window = ExampleApp(window2)
-    window.show()
+    second_window = SecondWindow()
+    main_window = MainWindow(second_window)
+    main_window.show()
     app.exec_()

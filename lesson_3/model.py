@@ -2,6 +2,7 @@ import dataclasses
 
 from lesson_3.db_manager import DbManager
 
+
 @dataclasses.dataclass
 class Students:
     all_students = []
@@ -20,17 +21,24 @@ class Students:
         for row in result:
             Students(*row)
 
-
     def convert_to_tuple(self):
         return (self.age, self.name)
 
+    @staticmethod
+    def apply_changes():
+        print(Students.all_students)
+        print("Обновление базы данных выполнено")
+
+
+    def __repr__(self):
+        return "Students_" + str(self.id)
 
     def __str__(self):
         return (
-                "\nИмя: "
-                + self.name
-                + "\nПочтовый адрес: "
-                + self.email
-                + "\nВозраст: "
-                + str(self.age)
+            "\nИмя: "
+            + self.name
+            + "\nПочтовый адрес: "
+            + self.email
+            + "\nВозраст: "
+            + str(self.age)
         )

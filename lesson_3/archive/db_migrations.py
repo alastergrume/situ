@@ -8,9 +8,9 @@ class Init_DB:
 
     def init_migrations(self):
 
-            cursor = self.conn.cursor()
+        cursor = self.conn.cursor()
 
-            query = """
+        query = """
                 CREATE TABLE IF NOT EXISTS Students (
                 id INTEGER PRIMARY KEY,
                 first_name STRING UNIQUE NOT NULL,
@@ -19,5 +19,5 @@ class Init_DB:
                 )        
                 """
 
-            cursor.execute(query)
-            cursor.close()
+        cursor.execute(query)
+        cursor.close()
