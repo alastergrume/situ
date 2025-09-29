@@ -35,20 +35,25 @@ class MainWindow(QtWidgets.QMainWindow, mw_fom.Ui_MainWindow):
 
     def remove_values(self, event):
 
+        char_list = [i.text() for i in self.listWidget.selectedItems()]
+        name, email, age = char_list[0].split("\t")
+
         reply = QtWidgets.QMessageBox.question(
-            self, "Удаление",
-            "Будет удалено навсегда!",
+            self,
+            "Удаление",
+            f"Вы действительно хотите удалить запись: {name}  {email}  {age}?",
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            QtWidgets.QMessageBox.No
+            QtWidgets.QMessageBox.No,
         )
         if reply == QtWidgets.QMessageBox.Yes:
-            char_list = [i.text() for i in self.listWidget.selectedItems()]
-            name, email, age = char_list[0].split("\t")
+
             for student in Students.all_students:
-                if student.name == name and student.email == email and int(student.age) == int(age):
+                if (
+                    student.name == name
+                    and student.email == email
+                    and int(student.age) == int(age)
+                ):
                     student.is_update = "delete"
-        # else:
-        #     pass
         self.create_list()
 
     def create_list(self):
@@ -62,21 +67,25 @@ class MainWindow(QtWidgets.QMainWindow, mw_fom.Ui_MainWindow):
     def closeEvent(self, event):
 
         reply = QtWidgets.QMessageBox.question(
-            self, "Выход",
+            self,
+            "Выход",
             "Форма содержит изменения. "
-            "\nСохранить и выйти? "
-            "\n(Cancel - Выход без сохранения изменений)?",
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel
+            "\nПрименить изменения и выйти? ",
+            QtWidgets.QMessageBox.Yes
+            | QtWidgets.QMessageBox.No
+            | QtWidgets.QMessageBox.Cancel,
+            QtWidgets.QMessageBox.Cancel,
         )
-        if reply == QtWidgets.QMessageBox.No:
+        if reply == QtWidgets.QMessageBox.Cancel:
             event.ignore()
-        elif reply == QtWidgets.QMessageBox.Cancel:
+        elif reply == QtWidgets.QMessageBox.No:
             event.accept()
         elif reply == QtWidgets.QMessageBox.Yes:
             Students.apply_changes()
             event.accept()
         else:
             raise Exception("Something wrong")
+
 
 class SecondWindow(QtWidgets.QMainWindow, sv_form.Ui_MainWindow):
     def __init__(self):
@@ -90,7 +99,13 @@ class SecondWindow(QtWidgets.QMainWindow, sv_form.Ui_MainWindow):
             name = self.lineEdit_name.text()
             email = self.lineEdit_email.text()
             age = self.lineEdit_age.text()
-            Students(len(Students.all_students) + 1, name, email, str(age), is_update="create")
+            Students(
+                len(Students.all_students) + 1,
+                name,
+                email,
+                str(age),
+                is_update="create",
+            )
         else:
             current_row = main_window.listWidget.currentRow()
             Students.all_students[current_row].name = self.lineEdit_name.text()
