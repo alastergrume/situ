@@ -1,5 +1,5 @@
 import dataclasses
-
+from typing import Tuple
 from lesson_3.db_manager import DbManager
 
 
@@ -7,7 +7,7 @@ from lesson_3.db_manager import DbManager
 class Students:
     all_students = []
 
-    def __init__(self, id, name, email, age):
+    def __init__(self, id: int, name: str, email: str, age: str) -> None:
         self.id = id
         self.name = name
         self.email = email
@@ -15,20 +15,19 @@ class Students:
         Students.all_students.append(self)
 
     @classmethod
-    def get_all_students(cls):
+    def get_all_students(cls) -> None:
         db_manager = DbManager()
         result = db_manager.select_all()
         for row in result:
             Students(*row)
 
-    def convert_to_tuple(self):
-        return (self.age, self.name)
+    def convert_to_tuple(self) -> Tuple:
+        return self.name, self.email, self.age, self.id
 
     @staticmethod
     def apply_changes():
         print(Students.all_students)
         print("Обновление базы данных выполнено")
-
 
     def __repr__(self):
         return "Students_" + str(self.id)
