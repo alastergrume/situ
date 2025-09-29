@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 class DbManager:
 
     def __init__(self):
-        self.conn = self.get_connection()
-        self.migrate()
+        self._conn = self._get_connection()
+        self._migrate()
         if os.environ["APP_ENV"] == "TEST" and not self.select_all():
-            self.init_db_data()
+            self._init_db_data()
 
-    def get_connection(self) -> sqlite3.Connection:
+    def _get_connection(self) -> sqlite3.Connection:
         return create_connection()
 
     def insert_data(self, rows: List) -> None:
@@ -29,18 +29,18 @@ class DbManager:
         if not rows:
             rows = []
         try:
-            cursor = self.conn.cursor()
+            cursor = self._conn.cursor()
             cursor.executemany(query, rows)
-            self.conn.commit()
+            self._conn.commit()
             cursor.close()
             logger.info("Database is updated")
         except Exception as ex:
             logger.error(f"An error occurred: {ex}")
-            self.conn.rollback()
+            self._conn.rollback()
 
     def select_all(self) -> List[Tuple[str, int]]:
         query = "SELECT id, name, email, age FROM Students;"
-        cursor = self.conn.cursor()
+        cursor = self._conn.cursor()
         data = cursor.execute(query)
         response = data.fetchall()
         return response
@@ -48,31 +48,31 @@ class DbManager:
     def remove_rows(self, row_id: int) -> None:
         query = f"DELETE FROM Students WHERE id={row_id};"
         try:
-            cursor = self.conn.cursor()
+            cursor = self._conn.cursor()
             if row_id:
                 cursor.execute(query)
                 cursor.close()
-                self.conn.commit()
+                self._conn.commit()
         except Exception as ex:
             logger.error(f"Error remove rows from Database: {ex}")
-            self.conn.rollback()
+            self._conn.rollback()
 
     def update_rows(self, rows: List[Tuple[str, int]]) -> None:
         query = """UPDATE Students 
                  SET name = ?, email = ?, age = ?
                  WHERE id = ?;"""
         try:
-            cursor = self.conn.cursor()
+            cursor = self._conn.cursor()
             cursor.executemany(query, rows)
             cursor.close()
-            self.conn.commit()
+            self._conn.commit()
         except Exception as ex:
             logger.error(f"Error update rows: {ex}")
-            self.conn.rollback()
+            self._conn.rollback()
 
-    def migrate(self) -> None:
+    def _migrate(self) -> None:
         try:
-            cursor = self.conn.cursor()
+            cursor = self._conn.cursor()
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS Students (
@@ -88,9 +88,9 @@ class DbManager:
             logger.debug("Migrations applied")
         except Exception as ex:
             logger.error(f"An error occurred: {ex}")
-            self.conn.rollback()
+            self._conn.rollback()
 
-    def init_db_data(self):
+    def _init_db_data(self):
         students = [
             ("Мария", "newuser@example.com", 28),
             ("Иван", "new@example.com", 30),

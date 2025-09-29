@@ -48,8 +48,17 @@ class MainWindow(QtWidgets.QMainWindow, form1.Ui_MainWindow):
 
     def closeEvent(self, event):
         print("Окно закрывается")
-        Students.apply_changes()
-        event.accept()
+        reply = QtWidgets.QMessageBox.question(
+            self, "Выход",
+            "Форма содержит изменения. Сохранить и выйти?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No
+        )
+        if reply == QtWidgets.QMessageBox.No:
+            event.ignore()
+        else:
+            Students.apply_changes()
+            event.accept()
 
 
 class SecondWindow(QtWidgets.QMainWindow, form2.Ui_MainWindow):
