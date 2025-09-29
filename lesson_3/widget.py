@@ -1,12 +1,12 @@
 import os
 import sys
 from PyQt5 import QtWidgets
-import lesson_3.form1 as form1
-import lesson_3.form2 as form2
+import lesson_3.main_window_form as mw_fom
+import lesson_3.second_window_form as sv_form
 from lesson_3.model import Students
 
 
-class MainWindow(QtWidgets.QMainWindow, form1.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, mw_fom.Ui_MainWindow):
     def __init__(self, second_window):
         super().__init__()
         self.setupUi(self)
@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QMainWindow, form1.Ui_MainWindow):
 
     def remove_values(self):
         current_row = self.listWidget.currentRow()
-        Students.all_students.pop(current_row)
+        remove_student = Students.all_students.pop(current_row)
         self.create_list()
 
     def create_list(self):
@@ -48,6 +48,7 @@ class MainWindow(QtWidgets.QMainWindow, form1.Ui_MainWindow):
 
     def closeEvent(self, event):
         print("Окно закрывается")
+        # TODO Нужно добавить проверку, если есть изменения, то сохранить и выйти
         reply = QtWidgets.QMessageBox.question(
             self, "Выход",
             "Форма содержит изменения. Сохранить и выйти?",
@@ -61,7 +62,7 @@ class MainWindow(QtWidgets.QMainWindow, form1.Ui_MainWindow):
             event.accept()
 
 
-class SecondWindow(QtWidgets.QMainWindow, form2.Ui_MainWindow):
+class SecondWindow(QtWidgets.QMainWindow, sv_form.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -73,12 +74,15 @@ class SecondWindow(QtWidgets.QMainWindow, form2.Ui_MainWindow):
             name = self.lineEdit_name.text()
             email = self.lineEdit_email.text()
             age = self.lineEdit_age.text()
-            Students(len(Students.all_students) + 1, name, email, str(age))
+            Students(len(Students.all_students) + 1, name, email, str(age), is_create=True)
+
+
         else:
             current_row = main_window.listWidget.currentRow()
             Students.all_students[current_row].name = self.lineEdit_name.text()
             Students.all_students[current_row].email = self.lineEdit_email.text()
             Students.all_students[current_row].age = self.lineEdit_age.text()
+
 
         main_window.create_list()
         self.close()

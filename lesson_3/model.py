@@ -12,6 +12,9 @@ class Students:
         self.name = name
         self.email = email
         self.age = age
+        self.is_create = None
+        self.is_update = None
+        self.is_remove = None
         Students.all_students.append(self)
 
     @classmethod
@@ -27,6 +30,9 @@ class Students:
     @staticmethod
     def apply_changes():
         print(Students.all_students)
+        print(Students.remove_students)
+        print(Students.update_students)
+        print(Students.create_students)
         print("Обновление базы данных выполнено")
 
     def __repr__(self):
